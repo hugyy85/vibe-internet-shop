@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block title %}Заказ оформлен - Jewelry Store{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <!-- Иконка успеха -->
+            <div class="success-icon mb-4">
+                <div class="success-circle">
+                    <i class="fas fa-check fa-3x text-white"></i>
+                </div>
+            </div>
+
+            <!-- Заголовок -->
+            <h1 class="display-6 text-success mb-3">Заказ успешно оформлен!</h1>
+            <p class="lead text-muted mb-4">
+                Спасибо за покупку! Ваш заказ принят и будет обработан в ближайшее время.
+            </p>
+
+            <!-- Информация о заказе -->
+            <div class="card text-start mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-info-circle me-2"></i>Информация о заказе
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Номер заказа:</strong> #{{ customer_data.order_date[:10].replace('-', '') }}{{ "%04d"|format(range(1000, 9999)|random) }}</p>
+                            <p><strong>Дата заказа:</strong> {{ customer_data.order_date[:10] }}</p>
+                            <p><strong>Статус:</strong> <span class="badge bg-warning">Обрабатывается</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Покупатель:</strong> {{ customer_data.name }}</p>
+                            <p><strong>Email:</strong> {{ customer_data.email }}</p>
+                            <p><strong>Телефон:</strong> {{ customer_data.phone }}</p>
+                        </div>
+                    </div>
+                    {% if customer_data.address %}
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <p><strong>Адрес доставки:</strong> {{ customer_data.address }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Что дальше -->
+            <div class="card text-start mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-clock me-2"></i>Что дальше?
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-success">
+                                <i class="fas fa-check text-white"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Заказ принят</h6>
+                                <small class="text-muted">Сейчас</small>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-warning">
+                                <i class="fas fa-clock text-white"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Обработка заказа</h6>
+                                <small class="text-muted">В течение 2 часов</small>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-info">
+                                <i class="fas fa-box text-white"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Подготовка к отправке</h6>
+                                <small class="text-muted">1-2 рабочих дня</small>
+                            </div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-primary">
+                                <i class="fas fa-shipping-fast text-white"></i>
+                            </div>
+                            <div class="timeline-content">
+                                <h6>Доставка</h6>
+                                <small class="text-muted">1-3 рабочих дня</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Контакты -->
+            <div class="card text-start mb-4">
+                <div class="card-header bg-light">
+                    <h5 class="mb-0">
+                        <i class="fas fa-phone me-2"></i>Нужна помощь?
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">
+                        <strong>Служба поддержки:</strong> +7 (495) 123-45-67
+                    </p>
+                    <p class="mb-2">
+                        <strong>Email:</strong> support@jewelrystore.ru
+                    </p>
+                    <p class="mb-0">
+                        <strong>Режим работы:</strong> Пн-Пт 9:00-18:00, Сб-Вс 10:00-16:00
+                    </p>
+                </div>
+            </div>
+
+            <!-- Уведомления -->
+            <div class="alert alert-info" role="alert">
+                <i class="fas fa-envelope me-2"></i>
+                <strong>Уведомления:</strong> 
+                На ваш email {{ customer_data.email }} отправлено подтверждение заказа. 
+                Мы будем информировать вас о каждом этапе обработки.
+            </div>
+
+            <!-- Кнопки действий -->
+            <div class="action-buttons">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <a href="{{ url_for('index') }}" class="btn btn-outline-dark w-100">
+                            <i class="fas fa-arrow-left me-2"></i>
+                            Продолжить покупки
+                        </a>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-outline-primary w-100" onclick="printOrder()">
+                            <i class="fas fa-print me-2"></i>
+                            Распечатать заказ
+                        </button>
+                    </div>
+                    <div class="col-md-4">
+                        <button class="btn btn-outline-success w-100" onclick="shareOrder()">
+                            <i class="fas fa-share me-2"></i>
+                            Поделиться
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Рекомендации -->
+            <div class="recommendations mt-5">
+                <h4 class="mb-4">Возможно, вас заинтересует</h4>
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-gem fa-2x text-gold mb-3"></i>
+                                <h6>Уход за украшениями</h6>
+                                <p class="small text-muted">Советы по уходу за ювелирными изделиями</p>
+                                <a href="#" class="btn btn-sm btn-outline-gold">Читать</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-gift fa-2x text-gold mb-3"></i>
+                                <h6>Подарочная упаковка</h6>
+                                <p class="small text-muted">Красивая упаковка для ваших украшений</p>
+                                <a href="#" class="btn btn-sm btn-outline-gold">Заказать</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-star fa-2x text-gold mb-3"></i>
+                                <h6>Программа лояльности</h6>
+                                <p class="small text-muted">Накапливайте баллы за покупки</p>
+                                <a href="#" class="btn btn-sm btn-outline-gold">Узнать больше</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function printOrder() {
+    window.print();
+}
+
+function shareOrder() {
+    if (navigator.share) {
+        navigator.share({
+            title: 'Мой заказ в Jewelry Store',
+            text: 'Я только что оформил заказ украшений в Jewelry Store!',
+            url: window.location.origin
+        });
+    } else {
+        // Fallback для браузеров без Web Share API
+        const text = 'Я только что оформил заказ украшений в Jewelry Store! ' + window.location.origin;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('Ссылка скопирована в буфер обмена!');
+        });
+    }
+}
+
+// Анимация появления элементов
+document.addEventListener('DOMContentLoaded', function() {
+    const elements = document.querySelectorAll('.card, .alert');
+    elements.forEach((element, index) => {
+        element.style.opacity = '0';
+        element.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            element.style.transition = 'all 0.5s ease';
+            element.style.opacity = '1';
+            element.style.transform = 'translateY(0)';
+        }, index * 100);
+    });
+});
+</script>
+
+<style>
+.success-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 4px 20px rgba(40, 167, 69, 0.3);
+}
+
+.timeline {
+    position: relative;
+    padding-left: 40px;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 12px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: #dee2e6;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 30px;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -40px;
+    top: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+.timeline-content h6 {
+    margin-bottom: 5px;
+}
+</style>
+{% endblock %}

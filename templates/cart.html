@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block title %}Корзина - Jewelry Store{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h1 class="display-6">
+                <i class="fas fa-shopping-cart me-3"></i>Корзина
+            </h1>
+        </div>
+    </div>
+
+    {% if cart_products %}
+    <div class="row">
+        <!-- Товары в корзине -->
+        <div class="col-lg-8">
+            <div class="cart-items">
+                {% for item in cart_products %}
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                <div class="cart-item-image">
+                                    {% if item.product.has_external_image %}
+                                    <img src="{{ item.product.image }}" class="img-fluid cart-thumb" alt="{{ item.product.name }}">
+                                    {% else %}
+                                    <i class="fas fa-gem fa-2x text-muted"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <h6 class="card-title mb-1">{{ item.product.name }}</h6>
+                                <small class="text-muted">{{ item.product.category }}</small>
+                                <p class="card-text mt-2">
+                                    <small class="text-muted">{{ item.product.description[:100] }}...</small>
+                                </p>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <div class="quantity-controls">
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity({{ item.product.id }}, -1)">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <span class="mx-3 fw-bold">{{ item.quantity }}</span>
+                                    <button class="btn btn-sm btn-outline-secondary" onclick="updateQuantity({{ item.product.id }}, 1)">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <div class="price">
+                                    <span class="fw-bold">{{ "{:,.0f}".format(item.product.price) }} ₽</span>
+                                    <small class="d-block text-muted">за шт.</small>
+                                </div>
+                            </div>
+                            <div class="col-md-2 text-end">
+                                <div class="item-total mb-2">
+                                    <span class="h6 text-gold fw-bold">{{ "{:,.0f}".format(item.total) }} ₽</span>
+                                </div>
+                                <a href="{{ url_for('remove_from_cart', product_id=item.product.id) }}" 
+                                   class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Кнопка продолжить покупки -->
+            <div class="mt-4">
+                <a href="{{ url_for('index') }}" class="btn btn-outline-dark">
+                    <i class="fas fa-arrow-left me-2"></i>Продолжить покупки
+                </a>
+            </div>
+        </div>
+
+        <!-- Итоги заказа -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Итоги заказа</h5>
+                </div>
+                <div class="card-body">
+                    <div class="order-summary">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Товаров:</span>
+                            <span>{{ cart_products|length }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Общая стоимость:</span>
+                            <span>{{ "{:,.0f}".format(total) }} ₽</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Доставка:</span>
+                            <span class="text-success">Бесплатно</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between mb-3">
+                            <strong>К оплате:</strong>
+                            <strong class="text-gold h5">{{ "{:,.0f}".format(total) }} ₽</strong>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <a href="{{ url_for('checkout') }}" class="btn btn-gold btn-lg">
+                                <i class="fas fa-credit-card me-2"></i>Оформить заказ
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Преимущества -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6 class="card-title">Ваши преимущества</h6>
+                    <ul class="list-unstyled small">
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Бесплатная доставка по России
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Гарантия качества
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Возврат в течение 30 дней
+                        </li>
+                        <li class="mb-2">
+                            <i class="fas fa-check text-success me-2"></i>
+                            Безопасная оплата
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Способы оплаты -->
+            <div class="card mt-4">
+                <div class="card-body text-center">
+                    <h6 class="card-title">Способы оплаты</h6>
+                    <div class="payment-methods">
+                        <i class="fab fa-cc-visa fa-2x text-muted me-2"></i>
+                        <i class="fab fa-cc-mastercard fa-2x text-muted me-2"></i>
+                        <i class="fas fa-credit-card fa-2x text-muted me-2"></i>
+                        <i class="fab fa-paypal fa-2x text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% else %}
+    <!-- Пустая корзина -->
+    <div class="row">
+        <div class="col-12 text-center py-5">
+            <div class="empty-cart">
+                <i class="fas fa-shopping-cart fa-5x text-muted mb-4"></i>
+                <h3 class="text-muted mb-3">Корзина пуста</h3>
+                <p class="text-muted mb-4">Добавьте товары в корзину, чтобы оформить заказ</p>
+                <a href="{{ url_for('index') }}" class="btn btn-gold btn-lg">
+                    <i class="fas fa-gem me-2"></i>Перейти к покупкам
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function updateQuantity(productId, change) {
+    // В реальном приложении здесь был бы AJAX запрос
+    // Пока что просто перезагружаем страницу
+    if (change > 0) {
+        window.location.href = `/add_to_cart/${productId}`;
+    } else {
+        // Для уменьшения количества нужен отдельный route
+        alert('Функция изменения количества будет реализована в следующей версии');
+    }
+}
+
+// Подтверждение удаления товара
+document.addEventListener('DOMContentLoaded', function() {
+    const removeButtons = document.querySelectorAll('a[href*="/remove_from_cart/"]');
+    removeButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!confirm('Вы уверены, что хотите удалить этот товар из корзины?')) {
+                e.preventDefault();
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

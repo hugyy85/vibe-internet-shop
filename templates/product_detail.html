@@ -1,0 +1,260 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Jewelry Store{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <!-- Навигация -->
+        <div class="col-12 mb-4">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Главная</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('index', category=product.category) }}">{{ product.category }}</a></li>
+                    <li class="breadcrumb-item active">{{ product.name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Изображение товара -->
+        <div class="col-lg-6 mb-4">
+            <div class="product-image-container">
+                <div class="main-image">
+                    {% if product.has_external_image %}
+                    <img src="{{ product.image }}" 
+                         class="img-fluid product-detail-image" 
+                         alt="{{ product.name }}"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="product-image-placeholder-large modern-placeholder-large" style="display: none;">
+                        <div class="placeholder-content-large">
+                            {% if 'кольцо' in product.category.lower() %}
+                                <i class="fas fa-circle-notch fa-6x text-gold mb-4"></i>
+                            {% elif 'серьги' in product.category.lower() %}
+                                <i class="fas fa-dot-circle fa-6x text-gold mb-4"></i>
+                            {% elif 'цепочка' in product.category.lower() or 'колье' in product.category.lower() %}
+                                <i class="fas fa-link fa-6x text-gold mb-4"></i>
+                            {% elif 'браслет' in product.category.lower() %}
+                                <i class="fas fa-circle fa-6x text-gold mb-4"></i>
+                            {% elif 'подвеска' in product.category.lower() %}
+                                <i class="fas fa-heart fa-6x text-gold mb-4"></i>
+                            {% else %}
+                                <i class="fas fa-gem fa-6x text-gold mb-4"></i>
+                            {% endif %}
+                            <h4 class="placeholder-title-large">{{ product.name }}</h4>
+                            <p class="placeholder-category">{{ product.category }}</p>
+                            <div class="placeholder-badge">Коллекция 2024</div>
+                        </div>
+                        <div class="placeholder-pattern-large"></div>
+                    </div>
+                    {% else %}
+                    <div class="product-image-placeholder-large modern-placeholder-large">
+                        <div class="placeholder-content-large">
+                            {% if 'кольцо' in product.category.lower() %}
+                                <i class="fas fa-circle-notch fa-6x text-gold mb-4"></i>
+                            {% elif 'серьги' in product.category.lower() %}
+                                <i class="fas fa-dot-circle fa-6x text-gold mb-4"></i>
+                            {% elif 'цепочка' in product.category.lower() or 'колье' in product.category.lower() %}
+                                <i class="fas fa-link fa-6x text-gold mb-4"></i>
+                            {% elif 'браслет' in product.category.lower() %}
+                                <i class="fas fa-circle fa-6x text-gold mb-4"></i>
+                            {% elif 'подвеска' in product.category.lower() %}
+                                <i class="fas fa-heart fa-6x text-gold mb-4"></i>
+                            {% else %}
+                                <i class="fas fa-gem fa-6x text-gold mb-4"></i>
+                            {% endif %}
+                            <h4 class="placeholder-title-large">{{ product.name }}</h4>
+                            <p class="placeholder-category">{{ product.category }}</p>
+                            <div class="placeholder-badge">Коллекция 2024</div>
+                        </div>
+                        <div class="placeholder-pattern-large"></div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Thumbnails -->
+                <div class="thumbnail-gallery mt-3">
+                    <div class="row g-2">
+                        {% for i in range(1, 5) %}
+                        <div class="col-3">
+                            <div class="thumbnail-placeholder">
+                                <i class="fas fa-gem text-muted"></i>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Информация о товаре -->
+        <div class="col-lg-6">
+            <div class="product-info">
+                <h1 class="product-title mb-3">{{ product.name }}</h1>
+                
+                <div class="price-section mb-4">
+                    <span class="current-price h2 text-gold fw-bold">
+                        {{ "{:,.0f}".format(product.price) }} ₽
+                    </span>
+                </div>
+
+                <div class="product-meta mb-4">
+                    <span class="badge bg-secondary fs-6">{{ product.category }}</span>
+                    <span class="badge bg-success fs-6 ms-2">
+                        <i class="fas fa-check me-1"></i>В наличии
+                    </span>
+                </div>
+
+                <div class="product-description mb-4">
+                    <h5>Описание</h5>
+                    <p class="text-muted">{{ product.description }}</p>
+                </div>
+
+                <!-- Характеристики -->
+                <div class="product-specs mb-4">
+                    <h5>Характеристики</h5>
+                    <ul class="list-unstyled">
+                        <li><strong>Артикул:</strong> <span class="text-muted">№{{ product.id }}</span></li>
+                        {% if product.size %}
+                        <li><strong>Размер:</strong> <span class="text-muted">{{ product.size }}</span></li>
+                        {% endif %}
+                        <li><strong>Категория:</strong> <span class="text-muted">{{ product.category }}</span></li>
+                        <li><strong>Производитель:</strong> <span class="text-muted">Ручная работа</span></li>
+                    </ul>
+                </div>
+
+                <!-- Кнопки действий -->
+                <div class="product-actions">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <a href="{{ url_for('add_to_cart', product_id=product.id) }}" 
+                               class="btn btn-gold btn-lg w-100">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Добавить в корзину
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-outline-dark w-100" onclick="addToWishlist()">
+                                <i class="fas fa-heart me-1"></i>
+                                В избранное
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-outline-dark w-100" onclick="shareProduct()">
+                                <i class="fas fa-share me-1"></i>
+                                Поделиться
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Гарантии -->
+                <div class="guarantees mt-4">
+                    <div class="row text-center">
+                        <div class="col-4">
+                            <i class="fas fa-certificate text-gold mb-2"></i>
+                            <small class="d-block">Сертификат качества</small>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-shipping-fast text-gold mb-2"></i>
+                            <small class="d-block">Быстрая доставка</small>
+                        </div>
+                        <div class="col-4">
+                            <i class="fas fa-undo text-gold mb-2"></i>
+                            <small class="d-block">Возврат 30 дней</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Дополнительная информация -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <ul class="nav nav-tabs card-header-tabs" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#description">
+                                Подробное описание
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#care">
+                                Уход за изделием
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link" data-bs-toggle="tab" data-bs-target="#delivery">
+                                Доставка и возврат
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content">
+                        <div class="tab-pane active" id="description">
+                            <p>{{ product.description }}</p>
+                            <p>Это изысканное украшение создано опытными мастерами с использованием традиционных техник ювелирного искусства. Каждая деталь тщательно проработана и отполирована до совершенства.</p>
+                        </div>
+                        <div class="tab-pane" id="care">
+                            <h6>Рекомендации по уходу:</h6>
+                            <ul>
+                                <li>Храните украшения в отдельных мягких мешочках</li>
+                                <li>Избегайте контакта с химическими веществами</li>
+                                <li>Снимайте украшения перед физическими нагрузками</li>
+                                <li>Регулярно очищайте мягкой тканью</li>
+                            </ul>
+                        </div>
+                        <div class="tab-pane" id="delivery">
+                            <h6>Доставка:</h6>
+                            <p>Доставляем по всей России курьерской службой. Сроки доставки 1-3 рабочих дня.</p>
+                            <h6>Возврат:</h6>
+                            <p>Вы можете вернуть товар в течение 30 дней с момента получения, если он не подошел по размеру или не понравился.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function addToWishlist() {
+    // Имитация добавления в избранное
+    const btn = event.target.closest('button');
+    const icon = btn.querySelector('i');
+    
+    if (icon.classList.contains('fas')) {
+        icon.classList.remove('fas');
+        icon.classList.add('far');
+        btn.classList.remove('btn-outline-dark');
+        btn.classList.add('btn-outline-danger');
+    } else {
+        icon.classList.remove('far');
+        icon.classList.add('fas');
+        btn.classList.remove('btn-outline-danger');
+        btn.classList.add('btn-outline-dark');
+    }
+}
+
+function shareProduct() {
+    if (navigator.share) {
+        navigator.share({
+            title: '{{ product.name }}',
+            text: '{{ product.description }}',
+            url: window.location.href
+        });
+    } else {
+        // Fallback - копируем URL в буфер обмена
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('Ссылка скопирована в буфер обмена!');
+        });
+    }
+}
+</script>
+{% endblock %}

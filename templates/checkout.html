@@ -1,0 +1,311 @@
+{% extends "base.html" %}
+
+{% block title %}Оформление заказа - Jewelry Store{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-12 mb-4">
+            <h1 class="display-6">
+                <i class="fas fa-credit-card me-3"></i>Оформление заказа
+            </h1>
+        </div>
+    </div>
+
+    <form method="POST" action="{{ url_for('checkout') }}" id="checkoutForm">
+        <div class="row">
+            <!-- Форма заказа -->
+            <div class="col-lg-8">
+                <!-- Контактная информация -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user me-2"></i>Контактная информация
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="name" class="form-label">Имя и фамилия *</label>
+                                <input type="text" class="form-control" id="name" name="name" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Телефон *</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" 
+                                       placeholder="+7 (___) ___-__-__" required>
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="email" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Адрес доставки -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-map-marker-alt me-2"></i>Адрес доставки
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="city" class="form-label">Город *</label>
+                                <input type="text" class="form-control" id="city" name="city" required>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="street" class="form-label">Улица *</label>
+                                <input type="text" class="form-control" id="street" name="street" required>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="house" class="form-label">Дом *</label>
+                                <input type="text" class="form-control" id="house" name="house" required>
+                            </div>
+                            <div class="col-md-2 mb-3">
+                                <label for="apartment" class="form-label">Квартира</label>
+                                <input type="text" class="form-control" id="apartment" name="apartment">
+                            </div>
+                            <div class="col-12 mb-3">
+                                <label for="address" class="form-label">Полный адрес</label>
+                                <textarea class="form-control" id="address" name="address" rows="2" 
+                                          placeholder="Полный адрес для доставки"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Способ доставки -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-shipping-fast me-2"></i>Способ доставки
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="delivery-options">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="delivery" id="courier" 
+                                       value="courier" checked>
+                                <label class="form-check-label" for="courier">
+                                    <div class="d-flex justify-content-between w-100">
+                                        <div>
+                                            <strong>Курьерская доставка</strong>
+                                            <small class="d-block text-muted">1-3 рабочих дня</small>
+                                        </div>
+                                        <span class="text-success fw-bold">Бесплатно</span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="delivery" id="pickup" 
+                                       value="pickup">
+                                <label class="form-check-label" for="pickup">
+                                    <div class="d-flex justify-content-between w-100">
+                                        <div>
+                                            <strong>Самовывоз</strong>
+                                            <small class="d-block text-muted">ул. Тверская, 1</small>
+                                        </div>
+                                        <span class="text-success fw-bold">Бесплатно</span>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="delivery" id="express" 
+                                       value="express">
+                                <label class="form-check-label" for="express">
+                                    <div class="d-flex justify-content-between w-100">
+                                        <div>
+                                            <strong>Экспресс-доставка</strong>
+                                            <small class="d-block text-muted">В течение дня</small>
+                                        </div>
+                                        <span class="fw-bold">500 ₽</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Способ оплаты -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-credit-card me-2"></i>Способ оплаты
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="payment-options">
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="payment" id="card" 
+                                       value="card" checked>
+                                <label class="form-check-label" for="card">
+                                    <div>
+                                        <strong>Банковская карта</strong>
+                                        <small class="d-block text-muted">Visa, MasterCard, МИР</small>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="payment" id="cash" 
+                                       value="cash">
+                                <label class="form-check-label" for="cash">
+                                    <div>
+                                        <strong>Наличными при получении</strong>
+                                        <small class="d-block text-muted">Оплата курьеру</small>
+                                    </div>
+                                </label>
+                            </div>
+                            <div class="form-check mb-3">
+                                <input class="form-check-input" type="radio" name="payment" id="online" 
+                                       value="online">
+                                <label class="form-check-label" for="online">
+                                    <div>
+                                        <strong>Онлайн-платеж</strong>
+                                        <small class="d-block text-muted">Через интернет-банк</small>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Комментарий к заказу -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-comment me-2"></i>Комментарий к заказу
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <textarea class="form-control" name="comment" rows="3" 
+                                  placeholder="Дополнительная информация для курьера или пожелания по заказу"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Сводка заказа -->
+            <div class="col-lg-4">
+                <div class="card sticky-top" style="top: 100px;">
+                    <div class="card-header">
+                        <h5 class="mb-0">Ваш заказ</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Здесь должны быть товары из корзины -->
+                        <div class="order-items mb-3">
+                            <small class="text-muted">Товары будут загружены из корзины</small>
+                        </div>
+
+                        <hr>
+
+                        <div class="order-totals">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Товары:</span>
+                                <span>{{ session.cart.values() | sum if session.cart else 0 }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2">
+                                <span>Доставка:</span>
+                                <span class="delivery-cost text-success">Бесплатно</span>
+                            </div>
+                            <hr>
+                            <div class="d-flex justify-content-between mb-3">
+                                <strong>Итого:</strong>
+                                <strong class="text-gold h5 total-amount">0 ₽</strong>
+                            </div>
+                        </div>
+
+                        <!-- Согласие на обработку данных -->
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="privacy" required>
+                            <label class="form-check-label small" for="privacy">
+                                Я согласен на <a href="#" class="text-decoration-none">обработку персональных данных</a>
+                            </label>
+                        </div>
+
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="subscribe">
+                            <label class="form-check-label small" for="subscribe">
+                                Подписаться на новости и акции
+                            </label>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-gold btn-lg">
+                                <i class="fas fa-check me-2"></i>Подтвердить заказ
+                            </button>
+                        </div>
+
+                        <div class="text-center mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-lock me-1"></i>
+                                Ваши данные защищены SSL-шифрованием
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Форматирование номера телефона
+document.getElementById('phone').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.startsWith('8')) value = '7' + value.slice(1);
+    if (value.startsWith('7')) {
+        value = value.slice(1);
+    }
+    
+    let formattedValue = '+7';
+    if (value.length >= 1) formattedValue += ' (' + value.slice(0, 3);
+    if (value.length >= 4) formattedValue += ') ' + value.slice(3, 6);
+    if (value.length >= 7) formattedValue += '-' + value.slice(6, 8);
+    if (value.length >= 9) formattedValue += '-' + value.slice(8, 10);
+    
+    e.target.value = formattedValue;
+});
+
+// Обновление стоимости доставки
+document.querySelectorAll('input[name="delivery"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const deliveryCost = document.querySelector('.delivery-cost');
+        if (this.value === 'express') {
+            deliveryCost.textContent = '500 ₽';
+            deliveryCost.classList.remove('text-success');
+        } else {
+            deliveryCost.textContent = 'Бесплатно';
+            deliveryCost.classList.add('text-success');
+        }
+        // Здесь нужно пересчитать общую сумму
+    });
+});
+
+// Автозаполнение адреса
+document.addEventListener('DOMContentLoaded', function() {
+    const city = document.getElementById('city');
+    const street = document.getElementById('street');
+    const house = document.getElementById('house');
+    const apartment = document.getElementById('apartment');
+    const address = document.getElementById('address');
+    
+    function updateFullAddress() {
+        const parts = [
+            city.value,
+            street.value,
+            house.value,
+            apartment.value ? `кв. ${apartment.value}` : ''
+        ].filter(part => part.trim() !== '');
+        
+        address.value = parts.join(', ');
+    }
+    
+    [city, street, house, apartment].forEach(input => {
+        input.addEventListener('input', updateFullAddress);
+    });
+});
+</script>
+{% endblock %}
