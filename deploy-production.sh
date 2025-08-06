@@ -52,7 +52,7 @@ sed -i.bak "s|./nginx.conf:/etc/nginx/conf.d/default.conf:ro|./nginx.prod.conf:/
 
 # Stop existing containers
 echo "🛑 Stopping existing containers..."
-docker-compose down --remove-orphans 2>/dev/null || true
+docker-compose -f docker-compose.prod.yml down --remove-orphans 2>/dev/null || true
 
 # Clean up old images
 echo "🧹 Cleaning up old Docker images..."
@@ -60,14 +60,14 @@ docker system prune -f
 
 # Build and start containers
 echo "🏗️  Building and starting containers for production..."
-docker-compose up --build -d
+docker-compose -f docker-compose.prod.yml up --build -d
 
 # Wait for services to be ready
 echo "⏳ Waiting for services to start..."
 sleep 15
 
 # Check if containers are running
-if docker-compose ps | grep -q "Up"; then
+if docker-compose -f docker-compose.prod.yml ps | grep -q "Up"; then
     echo -e "${GREEN}✅ Production deployment successful!${NC}"
     echo -e "${BLUE}🌐 Application is available at:${NC}"
     echo "   http://$DOMAIN"
@@ -80,11 +80,11 @@ if docker-compose ps | grep -q "Up"; then
     echo "3. Configure firewall (ports 80, 443)"
     echo "4. Set up backup schedule"
     echo ""
-    echo "📊 Check status: docker-compose ps"
-    echo "📝 View logs: docker-compose logs -f"
+    echo "📊 Check status: docker-compose -f docker-compose.prod.yml ps"
+    echo "📝 View logs: docker-compose -f docker-compose.prod.yml logs -f"
 else
     echo -e "${RED}❌ Deployment failed!${NC}"
-    echo "📝 Check logs: docker-compose logs"
+    echo "📝 Check logs: docker-compose -f docker-compose.prod.yml logs"
     exit 1
 fi
 
