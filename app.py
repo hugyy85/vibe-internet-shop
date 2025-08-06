@@ -9,9 +9,22 @@ import pandas as pd
 import os
 import json
 from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'secret_key_for_jewelry_store_2024'
+
+# Production-ready configuration
+app.secret_key = os.getenv('SECRET_KEY', 'secret_key_for_jewelry_store_2024')
+app.config['DEBUG'] = os.getenv('DEBUG', 'False').lower() == 'true'
+
+# Security settings for production
+if os.getenv('FLASK_ENV') == 'production':
+    app.config['SESSION_COOKIE_SECURE'] = True
+    app.config['SESSION_COOKIE_HTTPONLY'] = True
+    app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
 
 class JewelryStore:
     def __init__(self):
