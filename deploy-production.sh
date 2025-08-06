@@ -34,7 +34,7 @@ if [ ! -f .env ]; then
 fi
 
 # Check if required files exist
-required_files=("Dockerfile" "docker-compose.prod.yml" "nginx.prod.conf" "gunicorn.conf.py")
+required_files=("Dockerfile" "docker-compose.prod.yml" "nginx-site.conf" "gunicorn.conf.py")
 for file in "${required_files[@]}"; do
     if [ ! -f "$file" ]; then
         echo -e "${RED}Error: Required file $file not found!${NC}"
@@ -42,13 +42,31 @@ for file in "${required_files[@]}"; do
     fi
 done
 
-# Use production nginx config
-echo "📝 Using production nginx configuration..."
-cp nginx.prod.conf nginx.conf
+# Configure nginx site
+echo "📝 Configuring nginx site for main server..."
+NGINX_SITE_CONFIG="/etc/nginx/sites-available/elena-jewelry"
+if [ -f "$NGINX_SITE_CONFIG" ]; then
+    echo "Nginx configuration already exists, backing up..."
+    sudo cp "$NGINX_SITE_CONFIG" "$NGINX_SITE_CONFIG.bak.$(date +%Y%m%d_%H%M%S)"
+fi
 
-# Update docker-compose for production
-echo "📝 Updating docker-compose for production domain..."
-sed -i.bak "s|./nginx.conf:/etc/nginx/conf.d/default.conf:ro|./nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro|g" docker-compose.prod.yml
+echo "Installing nginx site configuration..."
+sudo cp nginx-site.conf "$NGINX_SITE_CONFIG"
+
+# Enable the site
+echo "Enabling nginx site..."
+sudo ln -sf "$NGINX_SITE_CONFIG" /etc/nginx/sites-enabled/elena-jewelry
+
+# Test nginx configuration
+echo "Testing nginx configuration..."
+if sudo nginx -t; then
+    echo "✅ Nginx configuration is valid"
+    echo "🔄 Reloading nginx..."
+    sudo systemctl reload nginx
+else
+    echo "❌ Nginx configuration error!"
+    exit 1
+fi
 
 # Stop existing containers
 echo "🛑 Stopping existing containers..."
@@ -74,11 +92,11 @@ if docker-compose -f docker-compose.prod.yml ps | grep -q "Up"; then
     echo "   https://$DOMAIN (when SSL is configured)"
     echo ""
     echo -e "${YELLOW}📋 Next steps:${NC}"
-    echo "1. Configure SSL certificate for HTTPS"
-    echo "1. Configure SSL certificate for HTTPS"
+    echo "1. Configure SSL certificate for HTTPS (use certbot)"
     echo "2. Set up domain DNS to point to this server"
-    echo "3. Configure firewall (ports 80, 443)"
+    echo "3. Configure firewall (port 8000 should only be accessible locally)"
     echo "4. Set up backup schedule"
+    echo "5. Monitor nginx and application logs"
     echo ""
     echo "📊 Check status: docker-compose -f docker-compose.prod.yml ps"
     echo "📝 View logs: docker-compose -f docker-compose.prod.yml logs -f"

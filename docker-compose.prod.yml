@@ -1,7 +1,7 @@
 # Production Docker Compose configuration
 # Use this for production deployment with SSL and additional security
 
-version: '3.8'
+version: '3.3'
 
 services:
   app:
@@ -16,51 +16,18 @@ services:
     volumes:
       - ./price.xlsx:/app/price.xlsx:ro
       - ./static:/app/static:ro
-    networks:
-      - app-network
+    ports:
+      - "8000:8000"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 40s
     logging:
       driver: "json-file"
       options:
         max-size: "10m"
         max-file: "3"
 
-  nginx:
-    image: nginx:alpine
-    container_name: jewelry_store_nginx_prod
-    restart: always
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro
-      - ./static:/app/static:ro
-      - ./ssl:/etc/nginx/ssl:ro
-      - /var/log/nginx:/var/log/nginx
-    depends_on:
-      - app
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "nginx", "-t"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
 
-networks:
-  app-network:
-    driver: bridge
 
-volumes:
-  nginx_logs:
-    driver: local
