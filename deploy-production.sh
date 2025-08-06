@@ -34,7 +34,7 @@ if [ ! -f .env ]; then
 fi
 
 # Check if required files exist
-required_files=("Dockerfile" "docker-compose.yml" "nginx.prod.conf" "gunicorn.conf.py")
+required_files=("Dockerfile" "docker-compose.prod.yml" "nginx.prod.conf" "gunicorn.conf.py")
 for file in "${required_files[@]}"; do
     if [ ! -f "$file" ]; then
         echo -e "${RED}Error: Required file $file not found!${NC}"
@@ -48,7 +48,7 @@ cp nginx.prod.conf nginx.conf
 
 # Update docker-compose for production
 echo "📝 Updating docker-compose for production domain..."
-sed -i.bak "s|./nginx.conf:/etc/nginx/conf.d/default.conf:ro|./nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro|g" docker-compose.yml
+sed -i.bak "s|./nginx.conf:/etc/nginx/conf.d/default.conf:ro|./nginx.prod.conf:/etc/nginx/conf.d/default.conf:ro|g" docker-compose.prod.yml
 
 # Stop existing containers
 echo "🛑 Stopping existing containers..."
@@ -74,6 +74,7 @@ if docker-compose ps | grep -q "Up"; then
     echo "   https://$DOMAIN (when SSL is configured)"
     echo ""
     echo -e "${YELLOW}📋 Next steps:${NC}"
+    echo "1. Configure SSL certificate for HTTPS"
     echo "1. Configure SSL certificate for HTTPS"
     echo "2. Set up domain DNS to point to this server"
     echo "3. Configure firewall (ports 80, 443)"
