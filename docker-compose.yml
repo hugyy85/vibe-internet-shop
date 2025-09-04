@@ -10,7 +10,7 @@ services:
       - SECRET_KEY=${SECRET_KEY:-secret_key_for_jewelry_store_2024}
       - PORT=8000
     volumes:
-      - ./price.xlsx:/app/price.xlsx:ro
+      - ./price_v2.csv:/app/price_v2.csv:ro
       - ./static:/app/static:ro
     networks:
       - app-network

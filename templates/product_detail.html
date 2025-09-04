@@ -26,6 +26,9 @@
                     <img src="{{ product.image }}" 
                          class="img-fluid product-detail-image" 
                          alt="{{ product.name }}"
+                         onclick="openImageModal('{{ product.image }}', '{{ product.name }}')"
+                         style="cursor: pointer;"
+                         title="Нажмите для просмотра в полном экране"
                          onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <div class="product-image-placeholder-large modern-placeholder-large" style="display: none;">
                         <div class="placeholder-content-large">
@@ -39,6 +42,8 @@
                                 <i class="fas fa-circle fa-6x text-gold mb-4"></i>
                             {% elif 'подвеска' in product.category.lower() %}
                                 <i class="fas fa-heart fa-6x text-gold mb-4"></i>
+                            {% elif 'чокер' in product.category.lower() %}
+                                <i class="fas fa-circle fa-6x text-gold mb-4"></i>
                             {% else %}
                                 <i class="fas fa-gem fa-6x text-gold mb-4"></i>
                             {% endif %}
@@ -61,6 +66,8 @@
                                 <i class="fas fa-circle fa-6x text-gold mb-4"></i>
                             {% elif 'подвеска' in product.category.lower() %}
                                 <i class="fas fa-heart fa-6x text-gold mb-4"></i>
+                            {% elif 'чокер' in product.category.lower() %}
+                                <i class="fas fa-circle fa-6x text-gold mb-4"></i>
                             {% else %}
                                 <i class="fas fa-gem fa-6x text-gold mb-4"></i>
                             {% endif %}
@@ -71,9 +78,35 @@
                         <div class="placeholder-pattern-large"></div>
                     </div>
                     {% endif %}
+                    
+                    <!-- Подсказка для увеличения -->
+                    <div class="text-center mt-2">
+                        <small class="text-muted">
+                            <i class="fas fa-search-plus me-1"></i>
+                            Нажмите на изображение для просмотра в полном экране
+                        </small>
+                    </div>
                 </div>
                 
-                <!-- Thumbnails -->
+                <!-- Галерея изображений -->
+                {% if product.images and product.images|length > 1 %}
+                <div class="product-gallery mt-3">
+                    <div class="row g-2">
+                        {% for image in product.images[:4] %}
+                        <div class="col-3">
+                            <img src="{{ image.url }}" 
+                                 alt="{{ product.name }}" 
+                                 class="gallery-image img-fluid"
+                                 onclick="changeMainImage('{{ image.url }}')"
+                                 ondblclick="openImageModal('{{ image.url }}', '{{ product.name }}')"
+                                 onerror="this.style.display='none';"
+                                 title="Двойной клик для полноэкранного просмотра">
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% else %}
+                <!-- Thumbnails placeholder -->
                 <div class="thumbnail-gallery mt-3">
                     <div class="row g-2">
                         {% for i in range(1, 5) %}
@@ -85,6 +118,7 @@
                         {% endfor %}
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
 
@@ -111,6 +145,16 @@
                     <p class="text-muted">{{ product.description }}</p>
                 </div>
 
+                <!-- Видео, если есть -->
+                {% if product.video_url %}
+                <div class="product-video mb-4">
+                    <h5>Видео</h5>
+                    <a href="{{ product.video_url }}" target="_blank" class="btn btn-outline-primary">
+                        <i class="fas fa-play me-2"></i>Посмотреть видео
+                    </a>
+                </div>
+                {% endif %}
+
                 <!-- Характеристики -->
                 <div class="product-specs mb-4">
                     <h5>Характеристики</h5>
@@ -118,6 +162,12 @@
                         <li><strong>Артикул:</strong> <span class="text-muted">№{{ product.id }}</span></li>
                         {% if product.size %}
                         <li><strong>Размер:</strong> <span class="text-muted">{{ product.size }}</span></li>
+                        {% endif %}
+                        {% if product.hardware_color %}
+                        <li><strong>Цвет фурнитуры:</strong> <span class="text-muted">{{ product.hardware_color }}</span></li>
+                        {% endif %}
+                        {% if product.bead_size %}
+                        <li><strong>Размер бусины:</strong> <span class="text-muted">{{ product.bead_size }}</span></li>
                         {% endif %}
                         <li><strong>Категория:</strong> <span class="text-muted">{{ product.category }}</span></li>
                         <li><strong>Производитель:</strong> <span class="text-muted">Ручная работа</span></li>
@@ -220,10 +270,78 @@
         </div>
     </div>
 </div>
+
+<!-- Модальное окно для просмотра изображений -->
+<div id="imageModal" class="image-modal" onclick="closeImageModal()">
+    <div class="image-modal-content">
+        <span class="image-modal-close" onclick="closeImageModal()">&times;</span>
+        <div class="image-modal-header">
+            <h4 id="modalImageTitle">Изображение товара</h4>
+        </div>
+        <div class="image-modal-body">
+            <img id="modalImage" src="" alt="" class="modal-image">
+        </div>
+        <div class="image-modal-footer">
+            <button class="btn btn-secondary" onclick="closeImageModal()">
+                <i class="fas fa-times me-1"></i>Закрыть
+            </button>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
+function changeMainImage(imageUrl) {
+    const mainImg = document.querySelector('.product-detail-image');
+    if (mainImg) {
+        mainImg.src = imageUrl;
+        // Обновляем onclick для нового изображения
+        mainImg.onclick = function() {
+            openImageModal(imageUrl, mainImg.alt);
+        };
+    }
+}
+
+function openImageModal(imageUrl, title) {
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalTitle = document.getElementById('modalImageTitle');
+    
+    modalImage.src = imageUrl;
+    modalImage.alt = title;
+    modalTitle.textContent = title;
+    modal.style.display = 'flex';
+    
+    // Предотвращаем прокрутку страницы
+    document.body.style.overflow = 'hidden';
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    modal.style.display = 'none';
+    
+    // Возвращаем прокрутку страницы
+    document.body.style.overflow = 'auto';
+}
+
+// Закрытие модального окна по клавише Escape
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeImageModal();
+    }
+});
+
+// Предотвращаем закрытие модального окна при клике на само изображение
+document.addEventListener('DOMContentLoaded', function() {
+    const modalContent = document.querySelector('.image-modal-content');
+    if (modalContent) {
+        modalContent.addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+    }
+});
+
 function addToWishlist() {
     // Имитация добавления в избранное
     const btn = event.target.closest('button');

@@ -66,7 +66,7 @@ case "$1" in
         timestamp=$(date +"%Y%m%d_%H%M%S")
         mkdir -p backups
         cp -r static backups/static_$timestamp
-        cp price.xlsx backups/price_$timestamp.xlsx
+        cp price_v2.csv backups/price_v2_$timestamp.csv
         echo -e "${GREEN}✅ Backup created in backups/ directory${NC}"
         ;;
     update)

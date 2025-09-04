@@ -14,7 +14,7 @@ services:
       - PORT=8000
       - DEBUG=False
     volumes:
-      - ./price.xlsx:/app/price.xlsx:ro
+      - ./price_v2.csv:/app/price_v2.csv:ro
       - ./static:/app/static:ro
     ports:
       - "8000:8000"

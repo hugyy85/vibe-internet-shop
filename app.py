@@ -32,15 +32,15 @@ class JewelryStore:
         self.load_products()
     
     def load_products(self):
-        """Загружаем товары из Excel файла"""
+        """Загружаем товары из CSV файла"""
         try:
-            # Читаем Excel файл
-            df = pd.read_excel('price.xlsx')
+            # Читаем CSV файл
+            df = pd.read_csv('price_v2.csv', sep=';', encoding='utf-8')
             
             # Очищаем названия колонок от пробелов
             df.columns = df.columns.str.strip()
             
-            print(f"Загружено {len(df)} строк из Excel файла")
+            print(f"Загружено {len(df)} строк из CSV файла")
             print(f"Колонки: {df.columns.tolist()}")
             
             # Конвертируем в список словарей
@@ -48,27 +48,31 @@ class JewelryStore:
             for index, row in df.iterrows():
                 try:
                     # Проверяем, что строка содержит данные
-                    if pd.isna(row['№']) or pd.isna(row['цена']):
+                    if pd.isna(row['артикул']) or pd.isna(row['стоимость']):
                         continue
                         
                     # Создаем красивое название на основе описания
-                    description = str(row['описание']) if pd.notna(row['описание']) else ''
-                    product_name = self._create_product_name(description, int(row['№']))
+                    description = str(row['описание украшения']) if pd.notna(row['описание украшения']) else ''
+                    product_name = self._create_product_name(description, int(row['артикул']))
                     
-                    # Обрабатываем изображение
-                    image_url = str(row['фото']) if pd.notna(row['фото']) else None
-                    processed_image = self._process_image_url(image_url)
+                    # Обрабатываем множественные изображения
+                    image_urls = str(row['фото']) if pd.notna(row['фото']) else None
+                    processed_images = self._process_multiple_images(image_urls)
                     
                     product = {
-                        'id': int(row['№']),
+                        'id': int(row['артикул']),
                         'name': product_name,
-                        'price': float(row['цена']),
+                        'price': float(row['стоимость']),
                         'description': description if description else 'Красивое украшение ручной работы',
-                        'category': self._get_category_from_description(description),
+                        'category': str(row['вид украшения']) if pd.notna(row['вид украшения']) else self._get_category_from_description(description),
                         'size': str(row['размер']) if pd.notna(row['размер']) else 'Универсальный',
-                        'image': processed_image['url'],
-                        'has_external_image': processed_image['is_external'],
-                        'photo_url': image_url  # Сохраняем оригинальную ссылку для справки
+                        'image': processed_images[0]['url'] if processed_images else '/static/images/placeholder.jpg',
+                        'images': processed_images,
+                        'has_external_image': any(img['is_external'] for img in processed_images),
+                        'photo_urls': image_urls,
+                        'video_url': str(row['видео']) if pd.notna(row['видео']) else None,
+                        'hardware_color': str(row['Цвет фурнитуры']) if pd.notna(row['Цвет фурнитуры']) else None,
+                        'bead_size': str(row['размер бусины']) if pd.notna(row['размер бусины']) else None
                     }
                     self.products.append(product)
                 except (ValueError, IndexError, KeyError) as e:
@@ -78,7 +82,7 @@ class JewelryStore:
             print(f"Успешно загружено {len(self.products)} товаров")
                 
         except Exception as e:
-            print(f"Ошибка при загрузке Excel файла: {e}")
+            print(f"Ошибка при загрузке CSV файла: {e}")
             # Создаем демо-данные если файл не читается
             self.products = [
                 {
@@ -120,6 +124,27 @@ class JewelryStore:
     
     def get_product_by_id(self, product_id):
         return next((p for p in self.products if p['id'] == product_id), None)
+    
+    def _process_multiple_images(self, image_urls_string):
+        """Обрабатываем строку с множественными URL изображений"""
+        if not image_urls_string or image_urls_string == 'nan':
+            return [{
+                'url': '/static/images/placeholder.jpg',
+                'is_external': False
+            }]
+        
+        # Разделяем URL по запятым
+        urls = [url.strip() for url in image_urls_string.split(',') if url.strip()]
+        processed_images = []
+        
+        for url in urls:
+            processed_image = self._process_image_url(url)
+            processed_images.append(processed_image)
+        
+        return processed_images if processed_images else [{
+            'url': '/static/images/placeholder.jpg',
+            'is_external': False
+        }]
     
     def _process_image_url(self, image_url):
         """Обрабатываем URL изображения для корректного отображения"""
@@ -229,10 +254,15 @@ class JewelryStore:
             return f"{base_name} №{product_id}"
 
     def _get_category_from_description(self, description):
-        """Определяем категорию по описанию"""
+        """Определяем категорию по описанию (если не указана в 'вид украшения')"""
+        if not description:
+            return 'Украшения'
+        
         description_lower = description.lower()
         
-        if any(word in description_lower for word in ['кольцо', 'перстень']):
+        if any(word in description_lower for word in ['чокер']):
+            return 'Чокер'
+        elif any(word in description_lower for word in ['кольцо', 'перстень']):
             return 'Кольца'
         elif any(word in description_lower for word in ['серьги', 'серёжки']):
             return 'Серьги'
